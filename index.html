@@ -9,7 +9,13 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <meta name="robots" content="noindex, nofollow">
   <style>
-    .candidate-img { object-fit: cover; width: 100%; height: 160px; border-bottom: 1px solid #e5e7eb; }
+    ..candidate-img {
+  width: 100%;
+  height: auto;      /* keep natural height */
+  border-radius: 1rem;
+  object-fit: contain; /* optional: makes sure image is never stretched */
+}
+    
     .symbol { width: 32px; height: 32px; position: absolute; top: 8px; right: 8px; }
     .card { position: relative; overflow: hidden; border-radius: 1rem; cursor: pointer; transition: transform 0.2s; }
     .card:hover { transform: scale(1.03); }
