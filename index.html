@@ -7,9 +7,7 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-
 <meta name="robots" content="noindex, nofollow">
-
 <style>
   .candidate-img { object-fit: cover; width: 100%; height: 160px; border-bottom: 1px solid #e5e7eb; }
   .symbol { width: 32px; height: 32px; position: absolute; top: 8px; right: 8px; }
@@ -48,6 +46,131 @@ const firebaseConfig = {
   authDomain: "vote-e5fad.firebaseapp.com",
   databaseURL: "https://vote-e5fad-default-rtdb.firebaseio.com",
   projectId: "vote-e5fad",
+  storageBucket: "vote-e5fad.appspot.com",
+  messagingSenderId: "350589656939",
+  appId: "1:350589656939:web:5b844ff6c745169d6df62e"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// Candidate data (raw GitHub URLs)
+const candidates = [
+  { id: 1, name: 'Mugisha Muntu', img: 'https://raw.githubusercontent.com/thegroupx/voteuganda/main/cand1.jpg', symbol: 'https://raw.githubusercontent.com/thegroupx/voteuganda/main/sym1.jpeg' },
+  { id: 2, name: 'Nancy Kalembe', img: 'https://raw.githubusercontent.com/thegroupx/voteuganda/main/cand2.jpg', symbol: 'https://raw.githubusercontent.com/thegroupx/voteuganda/main/sym2.jpeg' },
+  { id: 3, name: 'Nathan Nandala Mafabi', img: 'https://raw.githubusercontent.com/thegroupx/voteuganda/main/cand3.jpg', symbol: 'https://raw.githubusercontent.com/thegroupx/voteuganda/main/sym3.jpeg' },
+  { id: 4, name: 'Robert Kyagulanyi Ssentamu', img: 'https://raw.githubusercontent.com/thegroupx/voteuganda/main/cand4.jpg', symbol: 'https://raw.githubusercontent.com/thegroupx/voteuganda/main/sym4.jpeg' },
+  { id: 5, name: 'Yoweri Kaguta Museveni', img: 'https://raw.githubusercontent.com/thegroupx/voteuganda/main/cand5.jpg', symbol: 'https://raw.githubusercontent.com/thegroupx/voteuganda/main/sym5.jpeg' }
+];
+
+const form = document.getElementById('ballotForm');
+const submitBtn = document.getElementById('submitBtn');
+const statusEl = document.getElementById('status');
+const resultsBox = document.getElementById('results');
+const resultsList = document.getElementById('resultsList');
+
+function getFingerprint() {
+  return navigator.userAgent + screen.width + screen.height;
+}
+
+// Render voting cards
+function renderCandidates() {
+  form.innerHTML = '';
+  candidates.forEach(c => {
+    const card = document.createElement('label');
+    card.className = 'card bg-white shadow p-0 relative';
+    card.innerHTML = `
+      <div class="relative">
+        <img src="${c.img}" class="candidate-img" onerror="this.src='fallback.png'" />
+        <img src="${c.symbol}" class="symbol" onerror="this.style.display='none'" />
+      </div>
+      <div class="p-4 flex items-center justify-between">
+        <p class="font-semibold">${c.name}</p>
+        <input type="radio" name="candidate" value="${c.id}" class="w-5 h-5" />
+      </div>
+    `;
+    form.appendChild(card);
+  });
+}
+
+renderCandidates();
+
+// Enable submit on selection
+form.addEventListener('change', () => {
+  submitBtn.disabled = !document.querySelector('input[name="candidate"]:checked');
+});
+
+// Prevent multiple votes
+if (localStorage.getItem('ballot_voted') === '1') {
+  submitBtn.disabled = true;
+  statusEl.textContent = 'You have already voted on this device.';
+}
+
+// Submit vote
+submitBtn.addEventListener('click', () => {
+  const selected = document.querySelector('input[name="candidate"]:checked');
+  if (!selected) return;
+
+  submitBtn.disabled = true;
+  statusEl.textContent = 'Submitting your vote...';
+
+  const candidateId = selected.value;
+  const fp = getFingerprint();
+
+  db.ref('votes/' + candidateId + '/' + fp).set(true)
+    .then(() => {
+      localStorage.setItem('ballot_voted', '1');
+      statusEl.textContent = '✅ Vote recorded. Thank you!';
+      loadResults();
+    })
+    .catch(err => {
+      submitBtn.disabled = false;
+      statusEl.textContent = '❌ ' + err.message;
+    });
+});
+
+// Load results with percentages
+function loadResults() {
+  db.ref('votes').once('value').then(snapshot => {
+    const votes = snapshot.val() || {};
+    resultsList.innerHTML = '';
+
+    let totalVotes = 0;
+    candidates.forEach(c => {
+      totalVotes += votes[c.id] ? Object.keys(votes[c.id]).length : 0;
+    });
+
+    candidates.forEach(c => {
+      let count = votes[c.id] ? Object.keys(votes[c.id]).length : 0;
+      let percent = totalVotes > 0 ? ((count / totalVotes) * 100).toFixed(1) : 0;
+
+      const li = document.createElement('li');
+      li.className = 'bg-white rounded-xl p-3 shadow';
+
+      li.innerHTML = `
+        <div class="flex justify-between items-center mb-1">
+          <span class="font-semibold text-blue-600">${c.name}</span>
+          <span class="text-gray-800">${count} votes (${percent}%)</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width: ${percent}%">${percent}%</div>
+        </div>
+      `;
+      resultsList.appendChild(li);
+    });
+
+    resultsBox.classList.remove('hidden');
+  });
+}
+
+// View results button
+document.getElementById('viewResults').addEventListener('click', loadResults);
+
+// Initial load
+loadResults();
+</script>
+</body>
+</html>  projectId: "vote-e5fad",
   storageBucket: "vote-e5fad.appspot.com",
   messagingSenderId: "350589656939",
   appId: "1:350589656939:web:5b844ff6c745169d6df62e"
