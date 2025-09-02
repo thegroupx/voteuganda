@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Community Ballot</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+
+
+
+<meta name="robots" content="noindex, nofollow">
+
+
+
+
+
+
+
+
+<style>
+  .candidate-img { object-fit: cover; width: 100%; height: 160px; }
+  .symbol { width: 32px; height: 32px; position: absolute; top: 8px; right: 8px; }
+  .card { position: relative; overflow: hidden; border-radius: 1rem; cursor: pointer; }
+</style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+<div class="max-w-3xl mx-auto p-4 sm:p-6">
+  <header class="mb-6 text-center">
+    <h1 class="text-2xl sm:text-3xl font-bold">Community Ballot</h1>
+    <p class="text-gray-600">Select one candidate and submit your vote.</p>
+  </header>
+
+  <form id="ballotForm" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></form>
+
+  <div class="mt-6 flex items-center justify-between">
+    <button id="submitBtn" class="px-6 py-3 rounded-2xl bg-blue-600 text-white font-semibold shadow hover:bg-blue-700 disabled:opacity-50" disabled>Submit Vote</button>
+    <button id="viewResults" class="px-4 py-2 bg-gray-200 rounded-2xl hover:bg-gray-300">View Results</button>
+  </div>
+
+  <p id="status" class="mt-4 text-sm text-gray-700"></p>
+
+  <div id="results" class="mt-6 hidden">
+    <h2 class="text-xl font-semibold mb-3">Live Results</h2>
+    <ul id="resultsList" class="space-y-2"></ul>
+  </div>
+</div>
+
+
+<script type='text/javascript' src='//nauseousemerge.com/63/dd/20/63dd20f699d3fd103c7c223027cd2380.js'></script>
+
+
+<script src="script.js"></script>
+</body>
+</html>
